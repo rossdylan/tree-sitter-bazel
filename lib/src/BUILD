@@ -264,16 +264,44 @@ cc_library(
 )
 
 cc_library(
+    name = "wasm-stdlib-symbols",
+    hdrs = [],
+    textual_hdrs = map(["wasm/stdlib-symbols.txt"]),
+    strip_include_prefix="/lib/src/wasm",
+)
+
+genrule(
+    name = "symbols",
+    srcs = map(["wasm/stdlib-symbols.txt"]),
+    outs = ["stdlib-symbols.txt"],
+    cmd = """
+        for file in $(SRCS); do
+            cp "$$file" $(@D)
+        done
+    """
+)
+
+cc_library(
     name = "wasm_store",
-    srcs = map(
-        [
-            "wasm_store.c",
-            "parser.h",
-        ],
-    ),
+    srcs = map(["parser.h", "wasm_store.c"]),
     hdrs = map(["wasm_store.h"]),
+    textual_hdrs = [":stdlib-symbols.txt"],
+    includes=["."],
     local_defines = use_defines_features(),
-    deps = [_API],
+    copts = [
+        "-Wno-int-conversion"
+    ],
+    deps = [
+        _API,
+        ":alloc",
+        ":array",
+        ":atomic",
+        ":language",
+        ":lexer",
+        "@@rules_rust++crate+tsbcrates__wasmtime-c-api-impl-36.0.6//:c-api-headers",
+        "//lib/src/wasm:wasm_stdlib",
+        "@tsbcrates//:wasmtime_c_api_impl"
+    ],
 )
 
 cc_library(

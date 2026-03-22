@@ -17,14 +17,56 @@
 module(
     name = "tree-sitter-bazel",
     version = "0.26.5",
-    compatibility_level = 1,
     repo_name = "tree-sitter-bazel",
 )
 
-bazel_dep(name = "bazel_features", version = "1.39.0")
+bazel_dep(name = "bazel_features", version = "1.42.0")
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
-bazel_dep(name = "rules_cc", version = "0.2.16")
+bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "rules_shell", version = "0.6.1")
+bazel_dep(name = "rules_rust", version = "0.69.0")
+
+rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+
+bazel_dep(name = "llvm", version = "0.6.9")
+
+register_toolchains(
+    "@llvm//toolchain:all",
+)
+
+# Default rust toolchain
+rust.toolchain(
+    edition = "2024",
+    extra_target_triples = [
+        "aarch64-apple-darwin",
+        "aarch64-unknown-linux-gnu",
+        "x86_64-unknown-linux-gnu",
+    ],
+    sha256s = {
+    },
+    versions = ["nightly/2026-03-14"],
+)
+use_repo(
+    rust,
+    "rust_toolchains",
+)
+
+crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
+crate.spec(
+    package = "wasmtime-c-api-impl",
+    features = ["cranelift", "gc-drc"],
+    version = "36.0.6",
+)
+crate.annotation(
+    additive_build_file = ":BUILD.wasmtime-c-api-impl.bazel",
+    crate = "wasmtime-c-api-impl",
+    gen_build_script = "off",
+)
+crate.from_specs(name="tsbcrates")
+use_repo(crate, "tsbcrates")
 
 tree_sitter_source_code = use_extension(":extensions.bzl", "tree_sitter_source_code")
+
+inject_repo(tree_sitter_source_code, "tsbcrates")
+
 use_repo(tree_sitter_source_code, "tree-sitter-raw")

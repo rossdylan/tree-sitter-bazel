@@ -14,7 +14,6 @@
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 cc_library(
     name = "tree-sitter",
@@ -29,11 +28,6 @@ cc_library(
     deps = [
         "@tree-sitter-bazel//lib/include/tree_sitter:api",
     ],
-)
-
-sh_binary(
-    name = "set_bazel_version",
-    srcs = [".set_bazel_version.sh"],
 )
 
 bzl_library(

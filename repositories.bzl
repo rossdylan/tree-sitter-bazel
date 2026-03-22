@@ -36,56 +36,6 @@ _URL_FMT = "https://github.com/tree-sitter/tree-sitter/archive/refs/tags/v{versi
 # Format for stripping the archive prefix.
 _STRIP_PREFIX_FMT = "tree-sitter-{version}"
 
-def tree_sitter_repositories():
-    # Release date: Dec 16 2025
-    _VERSION = "1.9.0"
-    _SHA256 = "3b5b49006181f5f8ff626ef8ddceaa95e9bb8ad294f7b5d7b11ea9f7ddaf8c59"
-    maybe(
-        http_archive,
-        name = "bazel_skylib",
-        sha256 = _SHA256,
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel-skylib-{version}.tar.gz".format(version = _VERSION),
-            "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel-skylib-{version}.tar.gz".format(version = _VERSION),
-        ],
-    )
-
-    # Release date: Sep 10 2025
-    _VERSION = "0.6.1"
-    _SHA256 = "e6b87c89bd0b27039e3af2c5da01147452f240f75d505f5b6880874f31036307"
-    maybe(
-        http_archive,
-        name = "rules_shell",
-        strip_prefix = "rules_shell-{version}".format(version = _VERSION),
-        sha256 = _SHA256,
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_shell/releases/download/v{version}/rules_shell-v{version}.tar.gz".format(version = _VERSION),
-            "https://github.com/bazelbuild/rules_shell/releases/download/v{version}/rules_shell-v{version}.tar.gz".format(version = _VERSION),
-        ],
-    )
-
-    # Release date: Jan 2 2026
-    _VERSION = "1.39.0"
-    _SHA256 = "5ab1a90d09fd74555e0df22809ad589627ddff263cff82535815aa80ca3e3562"
-    maybe(
-        http_archive,
-        name = "bazel_features",
-        strip_prefix = "bazel_features-{version}".format(version = _VERSION),
-        urls = ["https://github.com/bazel-contrib/bazel_features/releases/download/v{version}/bazel_features-v{version}.tar.gz".format(version = _VERSION)],
-        sha256 = _SHA256,
-    )
-
-    # Release date: Dec 18 2025
-    _VERSION = "0.2.16"
-    _SHA256 = "458b658277ba51b4730ea7a2020efdf1c6dcadf7d30de72e37f4308277fa8c01"
-    maybe(
-        http_archive,
-        name = "rules_cc",
-        strip_prefix = "rules_cc-{version}".format(version = _VERSION),
-        urls = ["https://github.com/bazelbuild/rules_cc/releases/download/{version}/rules_cc-{version}.tar.gz".format(version = _VERSION)],
-        sha256 = _SHA256,
-    )
-
 def tree_sitter_build_http_archive_arguments(
         version = DEFAULT_VERSION,
         sha256 = DEFAULT_SHA256SUM,
@@ -131,35 +81,3 @@ def tree_sitter_build_http_archive_arguments(
         "strip_prefix": strip_prefix,
         "build_file_content": """exports_files(glob(["lib/**"]))""",
     }
-
-def tree_sitter_sources(
-        version = DEFAULT_VERSION,
-        sha256 = DEFAULT_SHA256SUM,
-        integrity = DEFAULT_INTEGRITY,
-        url = None,
-        strip_prefix = None):
-    """Fetches the archive containing the tree-sitter source code.
-
-    Args:
-      version: str
-        Version to use.
-      sha256: str
-        SHA-256 sum.
-      url: str
-        URL.
-      strip_prefix: str
-        Strip prefix.
-    """
-    args = tree_sitter_build_http_archive_arguments(
-        version = version,
-        sha256 = sha256,
-        integrity = integrity,
-        url = url,
-        strip_prefix = strip_prefix,
-    )
-
-    maybe(
-        http_archive,
-        name = "tree-sitter-raw",
-        **args
-    )
